@@ -24,7 +24,7 @@ runs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'
+        python-version: '3.12'
         
     - name: Install Dependencies
       run: |
@@ -33,9 +33,10 @@ runs:
       shell: bash
         
     - name: Run Script
-      run: python src/check_aws_service_health.py ${{ inputs.services }}
+      run: docker run -it --env-file .env 930406063041.dkr.ecr.us-east-2.amazonaws.com/check-aws-service-health:latest
       shell: bash
       env:
-        aws-access-key-id: ${{ inputs.aws-access-key-id }}
-        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
-        aws-region: ${{ inputs.aws-region }}
+        AWS_SERVICES: ${{ inputs.services }}
+        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
+        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
+        AWS_REGION: ${{ inputs.aws-region }}

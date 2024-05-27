@@ -1,11 +1,17 @@
-import argparse
 import os
+import datetime
 import boto3
 from botocore.exceptions import NoCredentialsError
 
-aws_access_key_id: str = os.getenv('aws-access-key-id')
-aws_secret_access_key: str = os.getenv('aws-secret-access-key')
-aws_region: str = os.getenv('aws-region')
+aws_access_key_id: str = os.getenv('AWS_ACCESS_KEY_ID', '')
+aws_secret_access_key: str = os.getenv('AWS_SECRET_ACCESS_KEY', '')
+aws_region: str = os.getenv('AWS_REGION', '')
+aws_services: str = os.getenv('AWS_SERVICES', '')
+
+print(f"aws_access_key_id: {aws_access_key_id}")
+print(f"aws_secret_access_key: {aws_secret_access_key}")
+print(f"aws_region: {aws_region}")
+print(f"aws_services: {aws_services}")
 
 def get_aws_health_status(service_names: list[str]) -> None:
     try:
@@ -18,12 +24,25 @@ def get_aws_health_status(service_names: list[str]) -> None:
 
         all_results = []  # List to store results of all services
 
+        response = health_client.describe_events(
+                filter={
+                    'startTimes': [
+                        {
+                            'from': datetime.datetime.now() - datetime.timedelta(days=7)
+                        }
+                    ],
+                    'eventStatusCodes': [
+                        'open',
+                        'upcoming'
+                    ],
+                    'regions': [aws_region]
+                }
+            )
+        
+        print(f"Response: {response}")
+
         for service_name in service_names:
             print(f"\nChecking health status for {service_name}:")
-            response = health_client.describe_events(
-                Filters=[{'Name': 'service-name', 'Values': [service_name]}],
-                MaxResults=10
-            )
 
             for event in response['Events']:
                 result = f"Service: {service_name}, Event ID: {event['EventId']}, Status: {event['Status']}"
@@ -54,19 +73,8 @@ def get_aws_health_status(service_names: list[str]) -> None:
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Check AWS service health.')
-    parser.add_argument('-h', '--help', action='version', version='%(prog)s 1.0', help='Show this message and exit.', default=False)
-    
-    args = parser.parse_args()
-
-    if args.help:
-        print("Available services:")
-        print(", ".join(['Amazon S3', 'Amazon CloudFront', 'Amazon EC2', 'Amazon ECS', 'Amazon SQS', 'Amazon RDS', 'Amazon SSM', 'Route 53']))
-        exit(1)
-
-    services_env_var: str = os.getenv('AWS_SERVICES', '')
-    if services_env_var:
-        services_to_check: list[str] = services_env_var.split(',')
+    if aws_services:
+        services_to_check: list[str] = aws_services.split(',')
     else:
         print("No services specified. Exiting.")
         exit(1)
