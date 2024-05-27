@@ -1,9 +1,11 @@
 name: 'Check AWS Service Health'
 description: 'A GitHub Action to check the health status of specified AWS services.'
+
 inputs:
   services:
     description: 'Comma-separated list of AWS services to check.'
     required: true
+    
 runs:
   using: 'composite'
   steps:

@@ -1,0 +1,10 @@
+name: Check AWS Services Health
+on: [push]
+jobs:
+  check_services:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check AWS Service Health
+        uses: getcacheflow/check-aws-service-health@v0.1.0
+        with:
+          services: 'Amazon S3,Amazon RDS'
