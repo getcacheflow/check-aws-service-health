@@ -5,6 +5,15 @@ inputs:
   services:
     description: 'Comma-separated list of AWS services to check.'
     required: true
+  aws-region:
+    description: 'AWS region to check the health status of the services.'
+    required: true
+  aws-access-key-id:
+    description: 'AWS Access Key ID.'
+    required: true
+  aws-secret-access-key:
+    description: 'AWS Secret Access Key.'
+    required: true
     
 runs:
   using: 'composite'
@@ -21,12 +30,11 @@ runs:
       run: |
         python -m pip install --upgrade pip
         pip install boto3
+      shell: bash
         
     - name: Run Script
       run: python check_aws_services.py ${{ inputs.services }}
       env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.aws-region }}
+        aws-access-key-id: ${{ inputs.aws-access-key-id }}
+        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+        aws-region: ${{ inputs.aws-region }}
