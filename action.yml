@@ -34,6 +34,7 @@ runs:
         
     - name: Run Script
       run: python check_aws_services.py ${{ inputs.services }}
+      shell: bash
       env:
         aws-access-key-id: ${{ inputs.aws-access-key-id }}
         aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
